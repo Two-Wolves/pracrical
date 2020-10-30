@@ -1,0 +1,104 @@
+{extend name="admin@public/basic" /}
+
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+<style type="text/css">
+    li {list-style-type:none;}
+    .well{height:314px;}
+</style>
+{/block}
+
+{block name="cotent"}
+
+    <blockquote id="searchBlock" class="layui-elem-quote quoteBox">
+        <div class="layui-form-item layui-input-inline">
+            <a class="layui-btn layui-btn-normal" href="/database/indexs?type=export"><i class="fa fa-copy"></i> 数据库备份</a>
+        </div>
+        <div class="layui-form-item layui-input-inline">
+            <a class="layui-btn layui-btn-danger" href="/database/indexs?type=import"><i class="fa fa-refresh"></i> 数据库恢复</a>
+        </div>
+    </blockquote>
+    <div class="layui-form" id="database">
+        <div class="row">
+            <div class="col-xs-8 text-right">
+                <form action="{:url('query')}" method="post" name="infoform" target="resultframe">
+                    <input type="hidden" name="do_action" id="topaction" />
+
+                    <div class="btn-group">
+                        <div class="row dropdown-menu pull-right" style="width:300px;">
+                            <div class="col-xs-6">
+                                <select class="form-control select-striped" id="tablename" name="tablename[]" multiple="multiple">
+                                    {foreach $tables as $table}
+                                    <option value="{$table.name}" title="">{$table.name}<!--({$table.rows})--></option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div class="col-xs-6">
+                                <ul id="subaction" class="layui-btn-container">
+                                    <li><input type="submit" name="submit1" value="{:__('View structure')}" rel="viewinfo" class="layui-btn layui-btn-fluid"/></li>
+                                    <li><input type="submit" name="submit2" value="{:__('View data')}" rel="viewdata" class="layui-btn layui-btn-fluid"/></li>
+                                    <li><input type="submit" name="submit3" value="{:__('Optimize')}" rel="optimize" class="layui-btn layui-btn-fluid" /></li>
+                                    <li><input type="submit" name="submit4" value="{:__('Repair')}" rel="repair" class="layui-btn layui-btn-fluid"/></li>
+                                    <li><input type="submit" name="submit5" value="{:__('Optimize all')}" rel="optimizeall" class="layui-btn layui-btn-fluid" /></li>
+                                    <li><input type="submit" name="submit6" value="{:__('Repair all')}" rel="repairall" class="layui-btn layui-btn-fluid" /></li>
+                                </ul>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form layui-border-box layui-table-view" lay-filter="LAY-table-1">
+        <div class="well" id="resultparent">
+            <iframe name="resultframe" frameborder="0" id="resultframe" style="height:100%;" width="100%" height="100%"></iframe>
+        </div>
+    </div>
+    <form action="{:url('query')}" method="post" id="sqlexecute" name="form1" target="resultframe">
+        <input type="hidden" name="do_action" value="doquery" />
+
+        <div class="layui-form-item layui-form-text">
+            <div class="layui-input-line">
+                <textarea name="sqlquery" placeholder="{:__('Executes one or multiple queries which are concatenated by a semicolon')}" cols="60" rows="5" class="layui-textarea" id="sqlquery"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-line">
+                <input type="submit" class="layui-btn" value="查询" />
+                <input type="reset" class="layui-btn layui-btn-primary" value="重置" />
+            </div>
+        </div>
+    </form>
+{/block}
+
+{block name="script"}
+<script>
+    //提交时检查是否有删除或清空操作
+    $("#database").on("submit", "#sqlexecute", function () {
+        var v = $("#sqlquery").val().toLowerCase();
+        if ((v.indexOf("delete ") >= 0 || v.indexOf("truncate ") >= 0) && !confirm(__('Are you sure you want to delete or turncate?'))) {
+            return false;
+        }
+    });
+
+    //事件按钮操作
+    $("#database").on("click", "ul#subaction li input", function () {
+        $("#topaction").val($(this).attr("rel"));
+        return true;
+    });
+
+    //窗口变更的时候重设结果栏高度
+    $(window).on("resize", function () {
+        $("#database .well").height($(window).height() - $("#database #sqlexecute").height() - $("#ribbon").outerHeight() - $(".panel-heading").outerHeight() - 130);
+    });
+
+    //修复iOS下iframe无法滚动的BUG
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+        $("#resultparent").css({"-webkit-overflow-scrolling": "touch", "overflow": "auto"});
+    }
+
+    $(window).resize();
+</script>
+{/block}

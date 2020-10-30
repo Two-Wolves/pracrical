@@ -1,0 +1,136 @@
+{extend name="admin@public/basic" /}
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+<link rel="stylesheet" type="text/css" href="__STATIC__/plugs/wangEditor-3.1.1/release/wangEditor.min.css"/>
+<link href="__STATIC__/plugs/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<link href="__STATIC__/plugs/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">
+<style>
+    .toolbar {
+        border: 1px solid #ccc;
+    }
+
+    .edit-bg {
+        border: 1px solid #ccc;
+        background-color: #f4f4f4;
+        min-height: 300px;
+    }
+</style>
+{/block}
+{block name="cotent"}
+<form class="layui-form form-width-admin" action="" id="formBox">
+
+    <div class="layui-form-item">
+        <label for="name" class="layui-form-label">{:__('name')}:</label>
+        <div class="layui-input-block">
+            <input id="name" class="layui-input" name="name" type="text" value="{$info.name}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="status" class="layui-form-label">{:__('status')}:</label>
+        <div class="layui-input-block">
+            <input id="status" lay-verify="required" lay-skin="switch" lay-filter="switchstatus" lay-text="启用|禁用" type="checkbox" name="status" value="{$info.status}" {eq name="info.status" value="1"}checked{/eq}>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="is_deleted" class="layui-form-label">{:__('is_deleted')}:</label>
+        <div class="layui-input-block">
+            <input id="is_deleted-switch" lay-verify="required" lay-skin="switch" lay-filter="switchis_deleted" lay-text="是|否" type="checkbox" {in name="$info.is_deleted" value="1"}checked{/in} name="is_deleted" value="1">
+        </div>
+    </div>
+
+
+    {if !empty($info)}
+    <input type="hidden" class="id" id="id" name="id" value="{$info.id|default=''}">
+    {/if}
+
+    <div class="layui-form-item layui-row layui-col-xs12">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-sm" id="submitBtn">提交</button>
+            <button class="layui-btn layui-btn-sm layui-btn-primary" data-close="closeOpen">取消</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="script"}
+<script type="text/javascript" src="/static/plugs/tag-it/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="__STATIC__/plugs/tag-it/js/tag-it.js" charset="utf-8"></script>
+<script type="text/javascript" src="__STATIC__/plugs/wangEditor-3.1.1/release/wangEditor.min.js"></script>
+<script type="text/javascript">
+    layui.use(['form', 'layedit', 'laydate', 'upload'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , upload = layui.upload
+            , laydate = layui.laydate;
+
+        /**
+         * 上传图片处理
+         */
+        $.form.imageRender('upload_image_div', 'one');
+
+        /**
+         * 日期范围
+         */
+        $.laydate.range('create_at');
+
+
+        /**
+         *编辑器初始化
+         */
+        var editor = new Array;
+        var $text = new Array;
+        var E = window.wangEditor;
+        $('.layui-textarea').each(function(i){
+            var id = $(this).siblings('.layui-input-line').attr('id');
+            editor[i] = new E('#'+id);
+            editor[i].customConfig.uploadImgServer = "{:url('@admin/api.upload/image')}";
+            editor[i].customConfig.uploadFileName = 'image';
+            editor[i].customConfig.pasteFilterStyle = false;
+            editor[i].customConfig.uploadImgMaxLength = 5;
+            editor[i].customConfig.uploadImgHooks = {
+                timeout: function (xhr, editor) {
+                    $.msg.error('上传超时！')
+                },
+                // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
+                customInsert: function (insertImg, result, editor) {
+                    console.log(result);
+                    if (result.code == 0) {
+                        url = result.url;
+                        url.forEach(function (e) {
+                            insertImg(e);
+                        })
+                    } else {
+                        $.msg.error(result.msg);
+                    }
+                }
+            }
+            editor[i].customConfig.customAlert = function (info) {
+                layer.msg(info);
+            }
+            $text[i] = $(this);
+            editor[i].customConfig.onchange = function (html) {
+                // 监控变化，同步更新到 textarea
+                $text[i].val(html)
+            }
+            editor[i].create();
+            // 初始化 textarea 的值
+            editor[i].txt.html($text[i].val());
+        })
+
+        /**
+         * 添加大棚园区管理
+         */
+        $("#submitBtn").click(function () {
+            $.request.post('{:url("$thisRequest")}', $('#formBox').serializeArray(), function (res) {
+                $.msg.success(res.msg, function () {
+                    parent.$('.layui-laypage-btn').click();
+                    $.tool.close('open');
+                });
+            });
+            return false;
+        });
+    })
+
+</script>
+{/block}

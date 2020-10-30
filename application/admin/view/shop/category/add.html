@@ -1,0 +1,174 @@
+{extend name="admin@public/basic" /}
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+<link rel="stylesheet" type="text/css" href="__STATIC__/plugs/wangEditor-3.1.1/release/wangEditor.min.css"/>
+<link href="__STATIC__/plugs/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<link href="__STATIC__/plugs/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">
+<style>
+    .toolbar {
+        border: 1px solid #ccc;
+    }
+
+    .edit-bg {
+        border: 1px solid #ccc;
+        background-color: #f4f4f4;
+        min-height: 300px;
+    }
+</style>
+{/block}
+{block name="cotent"}
+<form class="layui-form form-width-admin" action="" id="formBox">
+
+        <div class="layui-form-item">
+        <label for="c-shop_category_id" class="layui-form-label">{:__('shop_category_id')}:</label>
+        <div class="layui-input-block">
+                        
+            <select  id="c-shop_category_id" class="layui-input selectpicker" name="shop_category_id">
+                {foreach name="shopCategoryIdList" item="vo"}
+                    <option value="{$key}" {in name="key" value=""}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-shop_type_id" class="layui-form-label">{:__('shop_type_id')}:</label>
+        <div class="layui-input-block">
+                        
+            <select  id="c-shop_type_id" class="layui-input selectpicker" name="shop_type_id">
+                {foreach name="shopTypeIdList" item="vo"}
+                    <option value="{$key}" {in name="key" value=""}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-name" class="layui-form-label">{:__('name')}:</label>
+        <div class="layui-input-block">
+            <input id="c-name" class="layui-input" name="name" type="text">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-image" class="layui-form-label">{:__('image')}:</label>
+        <div class="layui-input-block">
+                        <div id="upload_image_div">
+                <input id="c-image" class="layui-input" size="50" style="display:none;" name="image" type="text">
+                <div class="uploadimage" data-upload-image="one" data-upload-id="image" data-upload-div="upload_image_div" style="background-image: url(/static/image/admin/upload.png);">
+</div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-weigh" class="layui-form-label">{:__('weigh')}:</label>
+        <div class="layui-input-block">
+            <input id="c-weigh" class="layui-input" name="weigh" type="number">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-seoTitle" class="layui-form-label">{:__('seoTitle')}:</label>
+        <div class="layui-input-block">
+            <input id="c-seoTitle" class="layui-input" name="seoTitle" type="text">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-seoKeyword" class="layui-form-label">{:__('seoKeyword')}:</label>
+        <div class="layui-input-block">
+            <input id="c-seoKeyword" class="layui-input" name="seoKeyword" type="text">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-seoDescription" class="layui-form-label">{:__('seoDescription')}:</label>
+        <div class="layui-input-block">
+            <input id="c-seoDescription" class="layui-input" name="seoDescription" type="text">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-is_deleted" class="layui-form-label">{:__('is_deleted')}:</label>
+        <div class="layui-input-block">
+            <input id="is_deleted-switch" lay-verify="required" lay-skin="switch" lay-filter="switchis_deleted" lay-text="是|否" type="checkbox" name="is_deleted" value="1">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="c-status" class="layui-form-label">{:__('status')}:</label>
+        <div class="layui-input-block">
+                        
+            {foreach name="statusList" item="vo"}
+            <input type="radio" name="status" value="{$key}" title="{$vo}" {in name="key" value="status 0"}checked="checked"{/in}><div class="layui-unselect layui-form-radio layui-form-radioed"><i class="layui-anim layui-icon layui-anim-scaleSpring"></i><div>{$vo}</div></div>
+            {/foreach}
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-row layui-col-xs12">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-sm" id="submitBtn">提交</button>
+            <button class="layui-btn layui-btn-sm layui-btn-primary" data-close="closeOpen">取消</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="script"}
+<script type="text/javascript" src="/static/plugs/tag-it/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="__STATIC__/plugs/tag-it/js/tag-it.js" charset="utf-8"></script>
+<script type="text/javascript" src="__STATIC__/plugs/wangEditor-3.1.1/release/wangEditor.min.js"></script>
+<script type="text/javascript">
+    layui.use(['form', 'layedit', 'laydate', 'upload'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , upload = layui.upload
+            , laydate = layui.laydate;
+
+        /**
+         * 上传图片处理
+         */
+        $.form.imageRender('upload_image_div', 'one');
+
+
+        /**
+         *编辑器初始化
+         */
+        var E = window.wangEditor;
+        var editor = new E('#editor1', '#editor2');
+        editor.customConfig.uploadImgServer = "{:url('@admin/api.upload/image')}";
+        editor.customConfig.uploadFileName = 'image';
+        editor.customConfig.pasteFilterStyle = false;
+        editor.customConfig.uploadImgMaxLength = 5;
+        editor.customConfig.uploadImgHooks = {
+            timeout: function (xhr, editor) {
+                $.msg.error('上传超时！')
+            },
+            // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
+            customInsert: function (insertImg, result, editor) {
+                console.log(result);
+                if (result.code == 0) {
+                    url = result.url;
+                    url.forEach(function (e) {
+                        insertImg(e);
+                    })
+                } else {
+                    $.msg.error(result.msg);
+                }
+            }
+        }
+        editor.customConfig.customAlert = function (info) {
+            layer.msg(info);
+        }
+        editor.create();
+
+        /**
+         * 添加商品类型管理
+         */
+        $("#submitBtn").click(function () {
+            $.request.post('{:url("$thisRequest")}', $('#formBox').serializeArray(), function (res) {
+                $.msg.success(res.msg, function () {
+                    $.tool.reload('open');
+                });
+            });
+            return false;
+        });
+    })
+
+</script>
+{/block}

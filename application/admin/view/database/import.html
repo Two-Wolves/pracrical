@@ -1,0 +1,103 @@
+{extend name="admin@public/basic" /}
+
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+{/block}
+
+{block name="cotent"}
+<blockquote id="searchBlock" class="layui-elem-quote quoteBox">
+    <div class="layui-form-item layui-input-inline">
+        <a class="layui-btn layui-btn-normal" href="/database/indexs?type=export"><i class="fa fa-copy"></i> 数据库备份</a>
+    </div>
+    <div class="layui-form-item layui-input-inline">
+        <a class="layui-btn layui-btn-danger" href="/database"><i class="fa fa-refresh"></i> 返回数据库管理</a>
+    </div>
+</blockquote>
+<div class="layui-form layui-border-box layui-table-view" lay-filter="LAY-table-1">
+    <div id="myTabContent" class="layui-table-box">
+        <div class="layui-table-header">
+            <table cellspacing="0" cellpadding="0" border="0" class="layui-table" lay-skin="line" lay-size="lg"
+                   style="width:100%">
+                <thead>
+                <tr>
+                    <th align="center" width="200">
+                        <div class="layui-table-cell" align="center">
+                            <span>备份名称</span>
+                        </div>
+                    </th>
+                    <th align="center" width="80">
+                        <div class="layui-table-cell" align="center">
+                            <span>卷数</span>
+                        </div>
+                    </th>
+                    <th align="center" width="80">
+                        <div class="layui-table-cell" align="center">
+                            <span>压缩</span>
+                        </div>
+                    </th>
+                    <th align="center" width="80">
+                        <div class="layui-table-cell" align="center">
+                            <span>数据大小</span>
+                        </div>
+                    </th>
+                    <th align="center" width="200">
+                        <div class="layui-table-cell" align="center">
+                            <span>备份时间</span>
+                        </div>
+                    </th>
+                    <th align="center">
+                        <div class="layui-table-cell" align="center">
+                            <span>状态</span>
+                        </div>
+                    </th>
+                    <th align="center" width="120">
+                        <div class="layui-table-cell" align="center">
+                            <span>操作</span>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="layui-table-body">
+            <table cellspacing="0" cellpadding="0" border="0" class="layui-table" lay-skin="line" lay-size="lg"
+                   style="width:100%">
+                <tbody>
+                {volist name="list" id="data"}
+                <tr>
+                    <td width="200" align="center">
+                        <div class="layui-table-cell">
+                            {$data.time|date='Ymd-His'}
+                        </div>
+                    </td>
+                    <td width="80" align="center">
+                        <div class="layui-table-cell">{$data.part}</div>
+                    </td>
+                    <td width="80" align="center">
+                        <div class="layui-table-cell">{$data.compress}</div>
+                    </td>
+                    <td width="80" align="center">
+                        <div class="layui-table-cell">{$data.size|format_bytes}</div>
+                    </td>
+                    <td width="200" align="center">
+                        <div class="layui-table-cell">{$key}</div>
+                    </td>
+                    <td align="center">
+                        <div class="layui-table-cell">-</div>
+                    </td>
+                    <td width="120" align="center" class="action">
+                        <a class="btn btn-success db-import" href="{:url('import?time='.$data['time'])}"><i
+                                class="fa fa-refresh"></i></a>
+                        &nbsp;
+                        <a class="btn btn-danger btn-delone" href="{:url('del?time='.$data['time'])}"><i
+                                class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /应用列表 -->
+{/block}

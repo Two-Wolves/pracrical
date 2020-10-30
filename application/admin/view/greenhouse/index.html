@@ -1,0 +1,122 @@
+{extend name="admin@public/basic" /}
+
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+{/block}
+
+{block name="cotent"}
+<form class="layui-form">
+
+    <!--顶部操作栏--开始-->
+    <blockquote id="searchBlock" class="layui-elem-quote quoteBox">
+
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label-admin">大棚名称</label>
+            <div class="layui-input-inline">
+                <input type="text" id="name" class="layui-input " placeholder="请输入大棚名">
+            </div>
+        </div>
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label-admin">创建时间</label>
+            <div class="layui-input-inline">
+                <input type="text" id="create_at" class="layui-input " placeholder="请选择创建时间">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-inline">
+            <a class="layui-btn" data-search="currentTableId">搜索</a>
+        </div>
+
+        {if auth("$thisClass/add")}
+        <div class="layui-form-item layui-inline">
+            <a class="layui-btn layui-btn-normal" data-open='{:url("$thisClass/add")}?park_id={$id}' data-title="添加">添加</a>
+        </div>
+        {/if}
+
+        {if auth("$thisClass/del")}
+        <div class="layui-form-item layui-inline">
+            <a class="layui-btn layui-btn-danger layui-btn-normal" data-title="确定删除？" data-del-all='{:url("$thisClass/del")}' data-table-id="currentTableId">删除</a>
+        </div>
+        {/if}
+
+    </blockquote>
+    <!--顶部操作栏--结束-->
+
+    <!--主表单渲染--开始-->
+    <table id="currentTable" lay-filter="currentTable"></table>
+    <!--主表单渲染--结束-->
+
+    <!--表单模板绑定--开始-->
+    <script type="text/html" id="bindMemberInfo">
+        <div>
+            <span>{{d.nickname}}</span> <a class="layui-btn layui-btn-xs color-admin-desc" data-open='{:url("@admin/article.member/detail")}?id={{d.member_id}}' data-title="查看会员信息" data-width="1000px" data-height="450px">{{d.username}}</a>
+        </div>
+    </script>
+
+    <script type="text/html" id="bindImage">
+        <img style="width: 60px; height: 40px;" src="{:CDNDomain()}{{d.image ? d.image : '/static/image/admin/face.png'}}" layer-src="{:CDNDomain()}{{d.image}}" alt="{{d.name}}" data-image="open" lay-filter="modifyHeadImg">
+    </script>
+    <!-- 启用禁用 -->
+    <script type="text/html" id="checkStatus">
+        <input type="checkbox" name="{{d.id}}" value="{{d.status}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="modifyStatus" {{ d.status== 1 ? 'checked' : '' }}>
+    </script>
+    <!-- 是否推荐 -->
+        <script type="text/html" id="checkPosition">
+            {{ d.is_pos== 0 ? '<span class="layui-badge-rim">否</span>' : '<span class="layui-badge-rim layui-bg-green">是</span>' }}
+        </script>
+    <!-- 是否删除 -->
+    <script type="text/html" id="checkDeleted">
+        {{ d.is_deleted== 0 ? '<span class="layui-badge-rim">否</span>' : '' }}
+    </script>
+    <!--表单模板绑定--结束-->
+
+    <!--表单操作栏--开始-->
+    <script type="text/html" id="currentTableBar">
+
+        <!-- {if auth("$thisClass/details")}
+        <a class="layui-btn layui-btn-primary layui-btn-xs" href='{:HomeDomain()}/detail/{{d.id}}.htm' target="_blank">查看</a>
+        {/if} -->
+
+        {if auth("$thisClass/edit")}
+        <a class="layui-btn layui-btn-xs" data-open='{:url("$thisClass/edit")}?id={{d.id}}' data-title="修改信息">编辑</a>
+        {/if}
+
+        {if auth("$thisClass/del")}
+        <a class="layui-btn layui-btn-xs layui-btn-danger" data-title="确定删除？" data-del='{:url("$thisClass/del")}?id={{d.id}}'>删除</a>
+        {/if}
+
+    </script>
+    <!--表单操作栏--结束-->
+
+</form>
+{/block}
+
+{block name="script"}
+<script>
+
+    /**
+     * 生成表单
+     */
+    $.form.table('current', '{:url("$thisRequest")}?type=ajax&id={$id}', [[
+        {type: 'checkbox', width: 50, fixed: 'left'},
+        {field: 'id', title: 'ID',align: 'center'},
+        {field: 'park_id_text', title: '所属园区',align: 'center'},
+        {field: 'name', title: '大棚名称',align: 'center'},
+        {field: 'temperature', title: '大棚内温度',align: 'center'},
+        {field: 'humidity', title: '大棚内湿度',align: 'center'},
+        {field: 'status', title: '大棚状态',align: 'center',width: 120, templet: '#checkStatus'},
+        {field: 'is_deleted', title: '大棚是否移除',align: 'center',width: 120, templet: '#checkDeleted'},
+        {field:'id',title: '操作', minWidth: 160, templet: '#currentTableBar', fixed: 'right', align: 'center'},
+    ]], true, 'line', 'lg', true);
+    /**
+     * 日期范围
+     */
+    $.laydate.range('create_at');
+
+    /**
+     * 修改状态
+     */
+    $.form.switch('modifyStatus', '{:url("$thisClass/status")}');
+
+</script>
+{/block}

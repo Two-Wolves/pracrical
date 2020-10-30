@@ -1,0 +1,91 @@
+{extend name="admin@public/basic" /}
+
+{block name="style"}
+<link rel="stylesheet" href="__STATIC__/css/admin/public.css" media="all"/>
+{/block}
+
+{block name="cotent"}
+<blockquote id="searchBlock" class="layui-elem-quote quoteBox">
+	<div class="layui-form-item layui-input-inline">
+		<a class="layui-btn" id="export" href="javascript:;" autocomplete="off"><i class="fa fa-copy"></i> 立即备份</a>
+	</div>
+	<div class="layui-form-item layui-input-inline">
+		<a class="layui-btn layui-btn-normal" href="/database/indexs?type=export"><i class="fa fa-refresh"></i> 数据库备份</a>
+	</div>
+	<div class="layui-form-item layui-input-inline">
+		<a class="layui-btn layui-btn-danger" href="/database"><i class="fa fa-refresh"></i> 返回数据库管理</a>
+	</div>
+</blockquote>
+<form id="export-form" method="post" action="{:url('export')}">
+<div class="layui-form layui-border-box layui-table-view" lay-filter="LAY-table-1">
+		<div id="myTabContent" class="tab-content">
+			<div class="layui-table-header">
+				<table cellspacing="0" cellpadding="0" border="0" class="layui-table" lay-skin="line" lay-size="lg" style="width:100%">
+					<thead>
+						<tr>
+							<th width="48">
+								<input class="check-all" checked="checked" type="checkbox" value="" lay-filter="allChoose" lay-skin="primary"></th>
+							<th>表名</th>
+							<th width="120">数据量</th>
+							<th width="120">数据大小</th>
+							<th width="180">创建时间</th>
+							<th width="160">备份状态</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="layui-table-body">
+				<table cellspacing="0" cellpadding="0" border="0" class="layui-table" lay-skin="line" lay-size="lg" style="width:100%">
+					<tbody>
+							{volist name="list" id="table"}
+							<tr>
+								<td class="num">
+									<input class="ids" checked="checked" type="checkbox" name="tables[]" value="{$table.name}" lay-filter="oneChoose" lay-skin="primary"></td>
+								<td>{$table.name}</td>
+								<td>{$table.rows}</td>
+								<td>{$table.data_length|format_bytes}</td>
+								<td>{$table.create_time}</td>
+								<td class="info">未备份</td>
+							</tr>
+							{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+</div>
+</form>
+<!-- /应用列表 -->
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+    layui.use(['form','jquery'], function () {
+        var form = layui.form,
+            $ = layui.jquery;
+        var tableBody = $(".layui-table-body .layui-table input");
+        var tableHeader = $(".layui-table-header .layui-table input");
+        // 全选按钮的全选和全不选
+        form.on('checkbox(allChoose)', function(obj){
+            var status = obj.elem.checked;
+            tableBody.each(function () {
+                this.checked = status;
+                console.log(this.checked);
+            });
+            form.render('checkbox');
+        });
+        // 统计选框是否都选中并勾选全选
+        form.on('checkbox(oneChoose)', function() {
+            var status = Array();
+            tableBody.each(function (key) {
+                status[key] = this.checked;
+            });
+            if(status.indexOf(false) != -1){
+                tableHeader[0].checked = false;
+            }else{
+                tableHeader[0].checked = true;
+            }
+            form.render('checkbox');
+        });
+    });
+</script>
+{/block}
